@@ -4,6 +4,7 @@ import pywemo
 import datetime
 import logging
 import logging.handlers
+import time
 
 LOGFILE='/opt/wemo_modem/log_wemo/logwemo.log'
 
@@ -28,6 +29,10 @@ def internet(host="8.8.8.8", port=53, timeout=3):
     OpenPort: 53/tcp
     Service: domain (DNS/TCP)
     """
+
+    #TESTING PURPOSES - uncomment line below
+    host="6.6.6.7"
+
     try:
         logger.info("Connecting to: {0}".format(host))
         socket.setdefaulttimeout(timeout)
@@ -74,6 +79,8 @@ while not internet():
     i+=1
     logger.info("No internet...retrying in 60 seconds.")
     time.sleep(60)
+
+    logger.info('i={0}'.format(i))
 
     if i>=10:
         logger.info("Initiating Wemo connection.")
