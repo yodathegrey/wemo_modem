@@ -31,7 +31,7 @@ def internet(host="8.8.8.8", port=53, timeout=3):
     """
 
     #TESTING PURPOSES - uncomment line below
-    host="6.6.6.7"
+    #host="6.6.6.7"
 
     try:
         logger.info("Connecting to: {0}".format(host))
@@ -53,37 +53,47 @@ def wemo_switch(MODEM="Modem Howe"):
         #Test for Modem Device
         if d.name==MODEM:
             logger.info('{0} FOUND'.format(MODEM))
-            if d.get_state==1:
-                logger.info('Turning {0} off.'.format(MODEM))
-                d.off()
-                time.sleep(10)
-                logger.info('Turning {0} on.'.format(MODEM))
-                d.on()
-            else:
-                logger.info('{0} was found to be offline...turning on.'.format(MODEM))
-                d.on()
 
-            #reset performed, flip bit
-            reset=1
+            try:
+                d.off()
+                logger.info("Turning off: {0}".format(MODEM))
+            except:
+                logger.info("Failed to turn off {0}; ALREADY OFF".format(MODEM))
+
+            time.sleep(10)
+
+            try:
+                d.on()
+                logger.info("Turning on: {0}".format(MODEM))
+                
+                #reset performed, flip bit
+                reset=1
+            except:
+                logging.info("Failed to turn on: {0}".format(MODEM))
 
     if reset==0:
         logger.info('{0} NOT FOUND - RESET NOT PERFORMED'.format(MODEM))
 
-logger.info("Script started...")
+def main():
+    logger.info("Script started...")
 
-#Counter
-i=0
+    #Counter
+    i=0
+    reset_counter=10
 
-#Test for internet connectivity
-while not internet():
-    i+=1
-    logger.info("No internet...retrying in 60 seconds.")
-    time.sleep(60)
+    #Test for internet connectivity
+    while i<reset_counter and not internet():
+        i+=1
+        logger.info("No internet...retrying in 30 seconds.")
+        time.sleep(30)
 
-    logger.info('i={0}'.format(i))
+        #logger.info('i={0}'.format(i))
 
-    if i>=10:
-        logger.info("Initiating Wemo connection.")
-        wemo_switch()
+        if i>=reset_counter:
+            logger.info("Initiating Wemo connection.")
+            wemo_switch()
 
-logger.info("Script shutting down....")
+    logger.info("Script shutting down....")
+
+if __name__ == "__main__":
+    main()
